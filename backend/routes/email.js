@@ -1,8 +1,14 @@
 import express from "express";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import multer from "multer";
 import EmailTemplate from "../models/EmailTemplate.js";
+import {dirname} from 'path';
+
+
+const __filename=fileURLToPath(import.meta.url);
+const __dirname=dirname(__filename);
 
 const router = express.Router();
 
@@ -13,10 +19,11 @@ router.get("/getEmailLayout", (req, res) => {
         if (err) return res.status(500).send("Error reading layout file");
         res.send(data);
     });
+    // res.status(200).json({ message: 'Ping received! getEmailLayout is working!' });
 
 });
 
-const multer = require("multer");
+// const multer = require("multer");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, "public/uploads/"),
@@ -26,8 +33,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.post("/uploadImage", upload.single("image"), (req, res) => {
+// router.post("/uploadImage", (req, res) => {
     if (!req.file) return res.status(400).send("No file uploaded");
     res.json({ imageUrl: `/uploads/${req.file.filename}` });
+    // res.status(200).json({ message: 'Ping received! upload image is working!' });
 });
 
 
@@ -39,6 +48,7 @@ router.post("/uploadEmailConfig", async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: "Failed to save email template" });
     }
+    // res.status(200).json({ message: 'Ping received! upload email config is working!' });
 });
 router.post("/renderAndDownloadTemplate", (req, res) => {
     const { title, content, footer, imageUrls } = req.body;
@@ -48,6 +58,7 @@ router.post("/renderAndDownloadTemplate", (req, res) => {
         res.setHeader("Content-Disposition", "attachment; filename=email-template.html");
         res.send(html);
     });
+    // res.status(200).json({ message: 'Ping received!Render and download is working!' });
 });
 
-module.exports = router;
+export default router;

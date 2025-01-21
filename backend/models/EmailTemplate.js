@@ -7,4 +7,4 @@ const emailTemplateSchema = new mongoose.Schema({
   imageUrls: [String],
 });
 
-module.exports = mongoose.model("EmailTemplate", emailTemplateSchema);
+export default mongoose.model("EmailTemplate", emailTemplateSchema);

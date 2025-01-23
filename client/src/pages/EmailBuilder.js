@@ -360,7 +360,7 @@ const EmailBuilder = () => {
 
   const fetchLayout = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/email/getEmailLayout");
+      const response = await axios.get("https://email-builder-mafs.onrender.com/api/email/getEmailLayout");
       setLayout(response.data);
       setShowFetchSavedTemplates(true);
     } catch (error) {
@@ -370,7 +370,7 @@ const EmailBuilder = () => {
 
   const fetchSavedTemplates = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/email/getSavedTemplates");
+      const response = await axios.get("https://email-builder-mafs.onrender.com/api/email/getSavedTemplates");
       if (response.data.message) {
         console.log(response.data.message);
       } else {
@@ -436,14 +436,14 @@ const EmailBuilder = () => {
       return;
     }
     try {
-      const response = await axios.post("http://localhost:8000/api/email/uploadEmailConfig", {
+      const response = await axios.post("https://email-builder-mafs.onrender.com/api/email/uploadEmailConfig", {
         name: templateName,
         title: title,
         logo: logoBase64,
         content: content,
         footer: footer
       });
-      alert(response.message);
+      alert(`template saved with id ${response.data._id}`);
       setTemplateName("");
       setShowSavePrompt(false);
     } catch (error) {

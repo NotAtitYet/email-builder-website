@@ -443,7 +443,7 @@ const EmailBuilder = () => {
         content: content,
         footer: footer
       });
-      alert("Template Saved.");
+      alert(response.message);
       setTemplateName("");
       setShowSavePrompt(false);
     } catch (error) {

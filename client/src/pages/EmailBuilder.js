@@ -3,20 +3,26 @@ import axios from "axios";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import {
   ClassicEditor,
+  Alignment,
   Autoformat,
   AutoImage,
+  AutoLink,
   Autosave,
   BlockQuote,
   Bold,
+  Bookmark,
   CloudServices,
   Code,
   Essentials,
+  FindAndReplace,
   FontBackgroundColor,
   FontColor,
   FontFamily,
   FontSize,
+  GeneralHtmlSupport,
   Heading,
   Highlight,
+  HorizontalLine,
   ImageBlock,
   ImageCaption,
   ImageInline,
@@ -31,30 +37,44 @@ import {
   Italic,
   Link,
   LinkImage,
-  MediaEmbed,
+  List,
+  ListProperties,
+  Mention,
+  PageBreak,
   Paragraph,
   PasteFromOffice,
   RemoveFormat,
+  SpecialCharacters,
+  SpecialCharactersArrows,
+  SpecialCharactersCurrency,
+  SpecialCharactersEssentials,
+  SpecialCharactersLatin,
+  SpecialCharactersMathematical,
+  SpecialCharactersText,
   Strikethrough,
+  Style,
   Subscript,
   Superscript,
+  Table,
+  TableCaption,
+  TableCellProperties,
+  TableColumnResize,
+  TableProperties,
+  TableToolbar,
   TextTransformation,
+  TodoList,
   Underline
 } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
-// import ReactQuill from "react-quill";
-// import "react-quill/dist/quill.snow.css";
 import "./EmailBuilder.css";
 
 const EmailBuilder = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [footer, setFooter] = useState("");
-  // const [images, setImages] = useState([]);
   const [layout, setLayout] = useState("");
   const [logoBase64, setLogoBase64] = useState("");
   const [savedTemplates, setSavedTemplates] = useState([]);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [templateName, setTemplateName] = useState("");
   const [showSavePrompt, setShowSavePrompt] = useState(false);
   const [showFetchSavedTemplates, setShowFetchSavedTemplates] = useState(false);
@@ -81,6 +101,7 @@ const EmailBuilder = () => {
         toolbar: {
           items: [
             'heading',
+            'style',
             '|',
             'fontSize',
             'fontFamily',
@@ -90,37 +111,43 @@ const EmailBuilder = () => {
             'bold',
             'italic',
             'underline',
-            'strikethrough',
-            'subscript',
-            'superscript',
-            'code',
-            'removeFormat',
             '|',
             'link',
-            'mediaEmbed',
+            'insertTable',
             'highlight',
             'blockQuote',
             '|',
+            'alignment',
+            '|',
+            'bulletedList',
+            'numberedList',
+            'todoList',
             'outdent',
             'indent'
           ],
           shouldNotGroupWhenFull: false
         },
         plugins: [
+          Alignment,
           Autoformat,
           AutoImage,
+          AutoLink,
           Autosave,
           BlockQuote,
           Bold,
+          Bookmark,
           CloudServices,
           Code,
           Essentials,
+          FindAndReplace,
           FontBackgroundColor,
           FontColor,
           FontFamily,
           FontSize,
+          GeneralHtmlSupport,
           Heading,
           Highlight,
+          HorizontalLine,
           ImageBlock,
           ImageCaption,
           ImageInline,
@@ -135,14 +162,32 @@ const EmailBuilder = () => {
           Italic,
           Link,
           LinkImage,
-          MediaEmbed,
+          List,
+          ListProperties,
+          Mention,
+          PageBreak,
           Paragraph,
           PasteFromOffice,
           RemoveFormat,
+          SpecialCharacters,
+          SpecialCharactersArrows,
+          SpecialCharactersCurrency,
+          SpecialCharactersEssentials,
+          SpecialCharactersLatin,
+          SpecialCharactersMathematical,
+          SpecialCharactersText,
           Strikethrough,
+          Style,
           Subscript,
           Superscript,
+          Table,
+          TableCaption,
+          TableCellProperties,
+          TableColumnResize,
+          TableProperties,
+          TableToolbar,
           TextTransformation,
+          TodoList,
           Underline
         ],
         fontFamily: {
@@ -197,6 +242,16 @@ const EmailBuilder = () => {
             }
           ]
         },
+        htmlSupport: {
+          allow: [
+            {
+              name: /^.*$/,
+              styles: true,
+              attributes: true,
+              classes: true
+            }
+          ]
+        },
         image: {
           toolbar: [
             'toggleImageCaption',
@@ -210,7 +265,7 @@ const EmailBuilder = () => {
           ]
         },
         initialData:
-          'Initial content',
+          'Default Content',
         licenseKey: LICENSE_KEY,
         link: {
           addTargetToExternalLinks: true,
@@ -225,13 +280,84 @@ const EmailBuilder = () => {
             }
           }
         },
-        placeholder: 'Type or paste your content here!'
+        list: {
+          properties: {
+            styles: true,
+            startIndex: true,
+            reversed: true
+          }
+        },
+        mention: {
+          feeds: [
+            {
+              marker: '@',
+              feed: [
+                /* See: https://ckeditor.com/docs/ckeditor5/latest/features/mentions.html */
+              ]
+            }
+          ]
+        },
+        menuBar: {
+          isVisible: true
+        },
+        placeholder: 'Type or paste your content here!',
+        style: {
+          definitions: [
+            {
+              name: 'Article category',
+              element: 'h3',
+              classes: ['category']
+            },
+            {
+              name: 'Title',
+              element: 'h2',
+              classes: ['document-title']
+            },
+            {
+              name: 'Subtitle',
+              element: 'h3',
+              classes: ['document-subtitle']
+            },
+            {
+              name: 'Info box',
+              element: 'p',
+              classes: ['info-box']
+            },
+            {
+              name: 'Side quote',
+              element: 'blockquote',
+              classes: ['side-quote']
+            },
+            {
+              name: 'Marker',
+              element: 'span',
+              classes: ['marker']
+            },
+            {
+              name: 'Spoiler',
+              element: 'span',
+              classes: ['spoiler']
+            },
+            {
+              name: 'Code (dark)',
+              element: 'pre',
+              classes: ['fancy-code', 'fancy-code-dark']
+            },
+            {
+              name: 'Code (bright)',
+              element: 'pre',
+              classes: ['fancy-code', 'fancy-code-bright']
+            }
+          ]
+        },
+        table: {
+          contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
+        }
       }
     };
   }, [isLayoutReady, LICENSE_KEY]);
 
 
-  // Fetch the email layout from the backend
   const fetchLayout = async () => {
     try {
       const response = await axios.get("http://localhost:8000/api/email/getEmailLayout");
@@ -242,7 +368,6 @@ const EmailBuilder = () => {
     }
   };
 
-  // Fetch saved email Templates
   const fetchSavedTemplates = async () => {
     try {
       const response = await axios.get("http://localhost:8000/api/email/getSavedTemplates");
@@ -257,46 +382,21 @@ const EmailBuilder = () => {
   };
 
 
-  // Load selected template
   const loadTemplate = async (template) => {
-    // try {
-    //   const response = await axios.get(`http://localhost:8000/api/email/getTemplateByName/${name}`);
-    //   if (response.data.htmlContent) {
-    //     setContent(response.data.htmlContent);
-    //   }
-    // } catch (error) {
-    //   console.error("Error loading template:", error);
-    // }
-    const updatedLayout = layout
-      .replace("{{logo}}", template.logo || "")
-      .replace("{{title}}", template.title || "")
-      .replace("{{content}}", template.content || "")
-      .replace("{{footer}}", template.footer || "");
-    setSelectedTemplate(template); // Set the selected template
-    setLayout(updatedLayout);
+    setTitle(template.title);
+    setLogoBase64(template.logo);
+    setContent(template.content);
+    setFooter(template.footer);
   };
 
-  // Update the layout dynamically
   const updateLayout = () => {
     let updatedLayout = layout;
     updatedLayout = updatedLayout.replace("{{title}}", title || "Default Title");
     updatedLayout = updatedLayout.replace("{{content}}", content || "Default Content");
     updatedLayout = updatedLayout.replace("{{footer}}", footer || "Default Footer");
 
-    // Replace images dynamically
-    // if (images.length > 0) {
-    //   const imageTags = images
-    //     .map((img) => `<img src="${img}" alt="Uploaded Image" style="width: 100%; max-width: 500px;"/>`)
-    //     .join("");
-    //   updatedLayout = updatedLayout.replace("{{images}}", imageTags);
-    // } else {
-    //   updatedLayout = updatedLayout.replace("{{images}}", "");
-    // }
-
-
 
     if (logoBase64) {
-      // console.log(logoBase64);
       updatedLayout = updatedLayout.replace(
         "{{logo}}",
         `${logoBase64}`
@@ -312,18 +412,6 @@ const EmailBuilder = () => {
     return updatedLayout;
   };
 
-  // Handle file upload
-  // const handleImageUpload = async (files) => {
-  //   const formData = new FormData();
-  //   formData.append("image", files[0]);
-
-  //   try {
-  //     const response = await axios.post("http://localhost:8000/api/email/uploadImage", formData);
-  //     setImages([...images, response.data.imageUrl]);
-  //   } catch (error) {
-  //     console.error("Error uploading image:", error);
-  //   }
-  // };
 
   const handleLogoUpload = (event) => {
     const file = event.target.files[0];
@@ -331,34 +419,23 @@ const EmailBuilder = () => {
       const reader = new FileReader();
 
       reader.onload = () => {
-        setLogoBase64(reader.result); // Store Base64 string for the logo
-        // console.log(logoBase64);
+        setLogoBase64(reader.result);
       };
 
       reader.onerror = () => {
         console.error("Error reading file.");
       };
 
-      reader.readAsDataURL(file); // Convert file to Base64 string
+      reader.readAsDataURL(file);
     }
   };
 
-  // Save template to database 
   const handleSaveTemplate = async () => {
     if (!templateName.trim()) {
       alert("Please provide a name for the template.");
       return;
     }
-    // const htmlContent = updateLayout();
-    let template = {
-      name: templateName,
-      title: title,
-      logo: logoBase64,
-      content: content,
-      footer: footer
-    }
     try {
-      // console.log(htmlContent);
       const response = await axios.post("http://localhost:8000/api/email/uploadEmailConfig", {
         name: templateName,
         title: title,
@@ -366,7 +443,7 @@ const EmailBuilder = () => {
         content: content,
         footer: footer
       });
-      console.log("Template saved:", response.data);
+      alert("Template Saved.");
       setTemplateName("");
       setShowSavePrompt(false);
     } catch (error) {
@@ -374,12 +451,11 @@ const EmailBuilder = () => {
     }
   };
   const handleOpenSavePrompt = () => {
-    setShowSavePrompt(true); // Show the save prompt
+    setShowSavePrompt(true);
   };
   const handleCloseSavePrompt = () => {
-    setShowSavePrompt(false); // Hide the save prompt
+    setShowSavePrompt(false);
   };
-  // Download the modified HTML
   const downloadModifiedHTML = () => {
     const element = document.createElement("a");
     const file = new Blob([updateLayout()], { type: "text/html" });
@@ -421,7 +497,7 @@ const EmailBuilder = () => {
       <div>
         <h3>Content</h3>
         <div className="main-container">
-          <div className="editor-container editor-container_classic-editor" ref={editorContainerRef}>
+          <div className="editor-container editor-container_classic-editor editor-container_include-style" ref={editorContainerRef}>
             <div className="editor-container__editor">
               <div ref={editorRef}>{editorConfig && <CKEditor editor={ClassicEditor} config={editorConfig} data={content} onChange={(event, editor) => {
                 const data = editor.getData();
@@ -430,6 +506,7 @@ const EmailBuilder = () => {
             </div>
           </div>
         </div>
+
       </div>
       <div>
         <h3>Footer</h3>
@@ -443,18 +520,10 @@ const EmailBuilder = () => {
       <div>
         <h3>Upload Logo</h3>
         <input type="file" onChange={handleLogoUpload} accept="image/*" />
-        {/* <ul>
-          {images.map((img, index) => (
-            <li key={index}>
-              <img src={img} alt={`Uploaded ${index}`} width="100" />
-            </li>
-          ))}
-        </ul> */}
       </div>
       <div>
         <button onClick={downloadModifiedHTML}>Download Template</button>
         <button onClick={handleOpenSavePrompt}>Save Template</button>
-        {/* Save Template Prompt */}
         {showSavePrompt && (
           <div className="save-prompt">
             <h3>Save Template</h3>

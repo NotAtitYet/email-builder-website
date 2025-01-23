@@ -24,18 +24,7 @@ router.get("/getSavedTemplates", async (req, res) => {
     }
 });
 
-router.get("/getTemplateByName/:name", async (req, res) => {
-    const { name } = req.params;
-    try {
-        const template = await EmailTemplate.findOne({ name });
-        if (!template) {
-            return res.status(404).json({ message: "Template not found" });
-        }
-        res.status(200).json(template);
-    } catch (err) {
-        res.status(500).json({ error: "Failed to fetch template" });
-    }
-});
+
 
 
 
@@ -58,12 +47,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.post("/uploadImage", upload.single("image"), (req, res) => {
-    // router.post("/uploadImage", (req, res) => {
-    if (!req.file) return res.status(400).send("No file uploaded");
-    res.json({ imageUrl: `/uploads/${req.file.filename}` });
-    // res.status(200).json({ message: 'Ping received! upload image is working!' });
-});
 
 
 router.post("/uploadEmailConfig", async (req, res) => {
@@ -84,15 +67,6 @@ router.post("/uploadEmailConfig", async (req, res) => {
 });
 
 
-router.post("/renderAndDownloadTemplate", (req, res) => {
-    const { title, content, footer, imageUrls } = req.body;
 
-    res.render("layout", { title, content, footer, imageUrls }, (err, html) => {
-        if (err) return res.status(500).send("Error rendering template");
-        res.setHeader("Content-Disposition", "attachment; filename=email-template.html");
-        res.send(html);
-    });
-    // res.status(200).json({ message: 'Ping received!Render and download is working!' });
-});
 
 export default router;

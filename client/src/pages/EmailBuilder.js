@@ -53,10 +53,16 @@ const EmailBuilder = () => {
   // const [images, setImages] = useState([]);
   const [layout, setLayout] = useState("");
   const [logoBase64, setLogoBase64] = useState("");
+  const [savedTemplates, setSavedTemplates] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [templateName, setTemplateName] = useState("");
+  const [showSavePrompt, setShowSavePrompt] = useState(false);
+  const [showFetchSavedTemplates, setShowFetchSavedTemplates] = useState(false);
+  const [isLayoutReady, setIsLayoutReady] = useState(false);
+
 
   const editorContainerRef = useRef(null);
   const editorRef = useRef(null);
-  const [isLayoutReady, setIsLayoutReady] = useState(false);
   const LICENSE_KEY = process.env.REACT_APP_CKeditor_licence_key;
 
   useEffect(() => {
@@ -230,9 +236,44 @@ const EmailBuilder = () => {
     try {
       const response = await axios.get("http://localhost:8000/api/email/getEmailLayout");
       setLayout(response.data);
+      setShowFetchSavedTemplates(true);
     } catch (error) {
       console.error("Error fetching layout:", error);
     }
+  };
+
+  // Fetch saved email Templates
+  const fetchSavedTemplates = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/email/getSavedTemplates");
+      if (response.data.message) {
+        console.log(response.data.message);
+      } else {
+        setSavedTemplates(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching saved templates:", error);
+    }
+  };
+
+
+  // Load selected template
+  const loadTemplate = async (template) => {
+    // try {
+    //   const response = await axios.get(`http://localhost:8000/api/email/getTemplateByName/${name}`);
+    //   if (response.data.htmlContent) {
+    //     setContent(response.data.htmlContent);
+    //   }
+    // } catch (error) {
+    //   console.error("Error loading template:", error);
+    // }
+    const updatedLayout = layout
+      .replace("{{logo}}", template.logo || "")
+      .replace("{{title}}", template.title || "")
+      .replace("{{content}}", template.content || "")
+      .replace("{{footer}}", template.footer || "");
+    setSelectedTemplate(template); // Set the selected template
+    setLayout(updatedLayout);
   };
 
   // Update the layout dynamically
@@ -302,9 +343,42 @@ const EmailBuilder = () => {
     }
   };
 
-
-
-
+  // Save template to database 
+  const handleSaveTemplate = async () => {
+    if (!templateName.trim()) {
+      alert("Please provide a name for the template.");
+      return;
+    }
+    // const htmlContent = updateLayout();
+    let template = {
+      name: templateName,
+      title: title,
+      logo: logoBase64,
+      content: content,
+      footer: footer
+    }
+    try {
+      // console.log(htmlContent);
+      const response = await axios.post("http://localhost:8000/api/email/uploadEmailConfig", {
+        name: templateName,
+        title: title,
+        logo: logoBase64,
+        content: content,
+        footer: footer
+      });
+      console.log("Template saved:", response.data);
+      setTemplateName("");
+      setShowSavePrompt(false);
+    } catch (error) {
+      console.error("Error saving template:", error);
+    }
+  };
+  const handleOpenSavePrompt = () => {
+    setShowSavePrompt(true); // Show the save prompt
+  };
+  const handleCloseSavePrompt = () => {
+    setShowSavePrompt(false); // Hide the save prompt
+  };
   // Download the modified HTML
   const downloadModifiedHTML = () => {
     const element = document.createElement("a");
@@ -320,6 +394,20 @@ const EmailBuilder = () => {
     <div style={{ padding: "20px" }}>
       <h1>Email Builder</h1>
       <button onClick={fetchLayout}>Load Layout</button>
+      {showFetchSavedTemplates && (<button onClick={fetchSavedTemplates}>Fetch Saved Templates</button>)}
+      {savedTemplates.length > 0 && (
+        <div>
+          <h3>Saved Templates</h3>
+          <ul>
+            {savedTemplates.map((template, index) => (
+              <li key={index}>
+                <button onClick={() => loadTemplate(template)}>{template.name}</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div dangerouslySetInnerHTML={{ __html: updateLayout() }}></div>
       <div>
         <h3>Title</h3>
@@ -363,7 +451,26 @@ const EmailBuilder = () => {
           ))}
         </ul> */}
       </div>
-      <button onClick={downloadModifiedHTML}>Download Template</button>
+      <div>
+        <button onClick={downloadModifiedHTML}>Download Template</button>
+        <button onClick={handleOpenSavePrompt}>Save Template</button>
+        {/* Save Template Prompt */}
+        {showSavePrompt && (
+          <div className="save-prompt">
+            <h3>Save Template</h3>
+            <input
+              type="text"
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              placeholder="Enter template name"
+            />
+            <div>
+              <button onClick={handleSaveTemplate}>Save</button>
+              <button onClick={handleCloseSavePrompt}>Cancel</button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

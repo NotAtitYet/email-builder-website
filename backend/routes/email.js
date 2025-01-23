@@ -51,8 +51,6 @@ const upload = multer({ storage });
 
 router.post("/uploadEmailConfig", async (req, res) => {
     const { name, title, logo, content, footer } = req.body;
-    // console.log(htmlContent);
-    console.log(name);
     if (!name || !title || !logo || !content || !footer) {
         return res.status(400).json({ error: "Template name and content are required" });
     }

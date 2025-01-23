@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +13,7 @@
       padding: 0;
       background-color: #f9f9f9;
     }
+
     .email-container {
       width: 100%;
       max-width: 600px;
@@ -21,16 +23,19 @@
       border-radius: 5px;
       overflow: hidden;
     }
+
     .email-header {
-      background-color: #4CAF50;
-      color: white;
+      background-color: #4caf50;
+      color: rgb(253, 253, 253);
       padding: 20px;
       text-align: center;
     }
+
     .email-body {
       padding: 20px;
       color: #333;
     }
+
     .email-footer {
       background-color: #f1f1f1;
       text-align: center;
@@ -38,30 +43,32 @@
       font-size: 12px;
       color: #777;
     }
+
     .email-image {
       text-align: center;
       margin-bottom: 20px;
     }
+
     .email-image img {
       max-width: 100%;
       border-radius: 5px;
     }
   </style>
 </head>
+
 <body>
   <div class="email-container">
     <!-- Header -->
+    <div class="email-image">
+      <img src="{{logo}}" alt="Logo">
+    </div>
     <div class="email-header">
       <h1>{{title}}</h1>
     </div>
 
     <!-- Body -->
     <div class="email-body">
-      <div class="email-image">
-        {{#each imageUrls}}
-          <img src="{{this}}" alt="Email Image">
-        {{/each}}
-      </div>
+      
       <p>{{content}}</p>
     </div>
 
@@ -71,4 +78,5 @@
     </div>
   </div>
 </body>
+
 </html>
